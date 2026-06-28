@@ -32,6 +32,18 @@ copy config.example.json config.json
 
 ## Run
 
+### Executable (double-click)
+
+Build once:
+
+```powershell
+.\scripts\build.ps1
+```
+
+Then open `dist\GardenFishMacro.exe`. Config is saved as `config.json` in the same folder as the exe.
+
+### From source
+
 ```powershell
 python -m garden_macro
 ```

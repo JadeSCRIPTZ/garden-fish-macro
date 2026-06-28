@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,23 @@ from .detector import PixelTarget
 
 APP_DIR = "GardenFishMacro"
 CONFIG_FILE = "config.json"
+
+
+def app_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path.cwd()
+
+
+def bundled_path(name: str) -> Path | None:
+    if getattr(sys, "frozen", False):
+        base = Path(getattr(sys, "_MEIPASS", app_dir()))
+        candidate = base / name
+        if candidate.exists():
+            return candidate
+    project_root = Path(__file__).resolve().parents[2]
+    candidate = project_root / name
+    return candidate if candidate.exists() else None
 
 
 @dataclass
@@ -88,7 +106,7 @@ def _pixel_to_dict(target: PixelTarget) -> dict[str, Any]:
 
 
 def config_path() -> Path:
-    local = Path.cwd() / CONFIG_FILE
+    local = app_dir() / CONFIG_FILE
     if local.exists():
         return local
     base = os.environ.get("APPDATA")
@@ -98,14 +116,14 @@ def config_path() -> Path:
 
 
 def default_config_path() -> Path:
-    return Path.cwd() / CONFIG_FILE
+    return app_dir() / CONFIG_FILE
 
 
 def load_config(path: Path | None = None) -> MacroConfig:
     target = path or config_path()
     if not target.exists():
-        example = Path(__file__).resolve().parents[2] / "config.example.json"
-        if example.exists():
+        example = bundled_path("config.example.json")
+        if example is not None:
             return load_config(example)
         return MacroConfig()
     raw = json.loads(target.read_text(encoding="utf-8"))
