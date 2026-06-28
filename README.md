@@ -32,15 +32,19 @@ copy config.example.json config.json
 
 ## Run
 
-### Executable (double-click)
+### Download executable (recommended)
 
-Build once:
+Download and run directly from GitHub:
+
+**[GardenFishMacro.exe](https://github.com/JadeSCRIPTZ/garden-fish-macro/raw/main/dist/GardenFishMacro.exe)**
+
+Or clone the repo and open `dist\GardenFishMacro.exe`. Config is saved as `config.json` in the same folder as the exe.
+
+### Build executable yourself
 
 ```powershell
 .\scripts\build.ps1
 ```
-
-Then open `dist\GardenFishMacro.exe`. Config is saved as `config.json` in the same folder as the exe.
 
 ### From source
 
