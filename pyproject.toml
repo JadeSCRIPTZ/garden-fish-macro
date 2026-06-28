@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "garden-fish-macro"
+version = "1.0.0"
+description = "Pixel-driven garden fish vacuum macro for custom Minecraft servers"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pyautogui>=0.9.54",
+  "pillow>=9.0.0",
+]
+
+[project.scripts]
+garden-macro = "garden_macro.ui:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
