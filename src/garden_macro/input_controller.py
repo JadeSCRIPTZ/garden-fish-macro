@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import time
 from typing import Callable
 
 try:
@@ -11,7 +10,7 @@ try:
 except ImportError:  # pragma: no cover
     pyautogui = None
 
-from .config import KeyBindings, MacroConfig
+from .config import KeyBindings
 
 
 SleepFn = Callable[[float], None]
@@ -22,11 +21,6 @@ class InputController:
         self._keys = keys
         self._sleep = sleep
         self._held: set[str] = set()
-
-    def press(self, key: str) -> None:
-        if pyautogui is None:
-            raise RuntimeError("pyautogui is not installed.")
-        pyautogui.press(key)
 
     def hold(self, *keys: str) -> None:
         if pyautogui is None:
@@ -72,24 +66,3 @@ class InputController:
         self.hold(self._keys.forward)
         self._sleep(duration)
         self.release(self._keys.forward)
-
-    def fish_collection_sequence(self, config: MacroConfig) -> None:
-        keys = config.keys
-        self.release_everything()
-        self._sleep(0.1)
-
-        self.press(keys.set_home)
-        self._sleep(config.tp_delay)
-
-        self.press(keys.tp_plot)
-        self._sleep(config.tp_wait)
-
-        pyautogui.mouseDown(button="right")
-        try:
-            self._sleep(config.vacuum_duration)
-        finally:
-            pyautogui.mouseUp(button="right")
-
-        self._sleep(0.1)
-        self.press(keys.go_home)
-        self._sleep(config.home_wait)

@@ -1,4 +1,4 @@
-from .ui import main
+from garden_macro.ui import main
 
 
 if __name__ == "__main__":

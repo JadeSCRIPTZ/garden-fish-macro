@@ -26,17 +26,15 @@ class FarmDirection(Enum):
 
 
 class FarmState(Enum):
-    IDLE = "IDLE"
-    FARMING_RIGHT = "FARMING_RIGHT"
-    FARMING_LEFT = "FARMING_LEFT"
-    MOVE_FORWARD = "MOVE_FORWARD"
-    FISH_COLLECT = "FISH_COLLECT"
+    IDLE = "Idle"
+    FARMING_RIGHT = "Farming right"
+    FARMING_LEFT = "Farming left"
+    MOVE_FORWARD = "Next row"
 
 
 @dataclass
 class RunStats:
     rows_completed: int = 0
-    fish_collected: int = 0
     scans: int = 0
     started_at: float = 0.0
 
@@ -46,7 +44,6 @@ class GardenMacroRunner:
         self._log = log
         self._state = state
         self._stop = threading.Event()
-        self._fish_event = threading.Event()
         self._row_end_event = threading.Event()
         self._thread: threading.Thread | None = None
         self._detector_thread: threading.Thread | None = None
@@ -64,7 +61,6 @@ class GardenMacroRunner:
         screen = pyautogui.size()
         config.validate(screen.width, screen.height)
         self._stop.clear()
-        self._fish_event.clear()
         self._row_end_event.clear()
         self.stats = RunStats(started_at=time.time())
         self._detector_thread = threading.Thread(
@@ -76,7 +72,6 @@ class GardenMacroRunner:
 
     def stop(self) -> None:
         self._stop.set()
-        self._fish_event.set()
         self._row_end_event.set()
 
     def _sleep(self, seconds: float) -> None:
@@ -85,30 +80,17 @@ class GardenMacroRunner:
             time.sleep(min(0.05, end - time.time()))
 
     def _detector_loop(self, config: MacroConfig) -> None:
-        last_fish_trigger = 0.0
         last_row_trigger = 0.0
         try:
             while not self._stop.is_set():
-                fish_rgb, fish_match = read_match(pyautogui, config.fish_pixel)
                 row_rgb, row_match = read_match(pyautogui, config.row_end_pixel)
                 self.stats.scans += 1
                 now = time.time()
 
-                if fish_match and now - last_fish_trigger >= config.fish_cooldown:
-                    last_fish_trigger = now
-                    self._fish_event.set()
-                    self._log(
-                        f"Fish spawn detected at RGB{fish_rgb}.",
-                        "warn",
-                    )
-
                 if row_match and now - last_row_trigger >= config.row_end_cooldown:
                     last_row_trigger = now
                     self._row_end_event.set()
-                    self._log(
-                        f"Row end detected at RGB{row_rgb}.",
-                        "accent",
-                    )
+                    self._log(f"Row end detected RGB{row_rgb}.", "accent")
 
                 self._sleep(config.poll_interval)
         except Exception as exc:
@@ -121,36 +103,18 @@ class GardenMacroRunner:
         farm_state = FarmState.FARMING_RIGHT
 
         self._state(farm_state.value)
-        self._log("Garden macro started. Farming right.", "accent")
+        self._log("Started farming right.", "ok")
         input_ctrl.hold_farm_right()
 
         try:
             while not self._stop.is_set():
-                if self._fish_event.is_set():
-                    self._fish_event.clear()
-                    resume_direction = direction
-                    farm_state = FarmState.FISH_COLLECT
-                    self._state(farm_state.value)
-                    self._log("Running fish collection sequence.", "warn")
-                    input_ctrl.fish_collection_sequence(config)
-                    self.stats.fish_collected += 1
-                    direction = resume_direction
-                    if direction == FarmDirection.RIGHT:
-                        farm_state = FarmState.FARMING_RIGHT
-                        input_ctrl.hold_farm_right()
-                    else:
-                        farm_state = FarmState.FARMING_LEFT
-                        input_ctrl.hold_farm_left()
-                    self._state(farm_state.value)
-                    self._log(f"Resumed farming {direction.name.lower()}.", "ok")
-
                 if farm_state in (FarmState.FARMING_RIGHT, FarmState.FARMING_LEFT):
                     if self._row_end_event.is_set():
                         self._row_end_event.clear()
                         input_ctrl.release_all()
                         farm_state = FarmState.MOVE_FORWARD
                         self._state(farm_state.value)
-                        self._log("Moving forward to next row.", "accent")
+                        self._log("Moving to next row.", "accent")
                         input_ctrl.tap_forward(config.forward_duration)
                         self.stats.rows_completed += 1
 
@@ -167,10 +131,10 @@ class GardenMacroRunner:
 
                 self._sleep(0.02)
         except pyautogui.FailSafeException:
-            self._log("Failsafe triggered. Mouse moved to top-left corner.", "error")
+            self._log("Failsafe: mouse moved to top-left corner.", "error")
         except Exception as exc:
             self._log(f"Runner error: {exc}", "error")
         finally:
             input_ctrl.release_everything()
             self._state(FarmState.IDLE.value)
-            self._log("Garden macro stopped.", "dim")
+            self._log("Stopped.", "dim")

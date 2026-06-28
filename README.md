@@ -1,86 +1,54 @@
-# Garden Fish Macro
+# Garden Farm Macro
 
-External Python macro for a custom Minecraft garden/fish plot. It farms rows back and forth with held movement + attack keys, detects row ends and fish spawns via pixel color, and runs a teleport/vacuum/home sequence when fish appear.
+Simple external macro for custom Minecraft garden plots. Farms rows back and forth with held movement + attack keys, and detects row ends via orange pixel color.
 
 > Use only on servers where automation is allowed.
 
-## Flow
+## How it works
 
-1. **Farming right** — hold `F` + `D` (attack + strafe right)
-2. **Row end (orange pixel)** — release keys, tap `W` forward briefly
-3. **Farming left** — hold `A` + `F`
+1. **Farm right** — hold attack + strafe right (`F` + `D`)
+2. **Orange pixel** (row end) — release keys, tap forward briefly (`W`)
+3. **Farm left** — hold attack + strafe left (`A` + `F`)
 4. Repeat, alternating direction each row
-5. **Fish spawn (rose/pink pixel)** — interrupt, press `H` (set home), `G` (tp plot), right-click vacuum, `J` (/home), resume previous direction
 
-Two pixel detectors run in parallel on a background thread while the main loop handles movement.
+## Download executable
 
-## Install
+**[GardenFarmMacro.exe](https://github.com/JadeSCRIPTZ/garden-fish-macro/raw/main/dist/GardenFarmMacro.exe)**
 
-```powershell
-cd C:\Users\stefan\Projects\garden-fish-macro
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-pip install -e .
-```
-
-Copy and edit config:
-
-```powershell
-copy config.example.json config.json
-```
-
-## Run
-
-### Download executable (recommended)
-
-Download and run directly from GitHub:
-
-**[GardenFishMacro.exe](https://github.com/JadeSCRIPTZ/garden-fish-macro/raw/main/dist/GardenFishMacro.exe)**
-
-Or clone the repo and open `dist\GardenFishMacro.exe`. Config is saved as `config.json` in the same folder as the exe.
-
-### Build executable yourself
-
-```powershell
-.\scripts\build.ps1
-```
-
-### From source
-
-```powershell
-python -m garden_macro
-```
+Or open `dist\GardenFarmMacro.exe` from the repo. Config saves as `config.json` next to the exe.
 
 ## Hotkeys (app focused)
 
 | Key | Action |
 |-----|--------|
-| F8 | Start / stop macro |
-| F9 | Sample fish-spawn pixel at cursor |
-| F10 | Sample row-end pixel at cursor |
-| Esc | Stop macro |
+| F8 | Start / stop |
+| F9 | Sample row-end pixel at cursor |
+| Esc | Stop |
 
-Move the mouse to the **top-left corner** to trigger pyautogui failsafe and stop immediately.
+Move mouse to **top-left corner** for pyautogui failsafe stop.
 
 ## Calibration
 
 1. Open Minecraft in windowed/borderless mode.
-2. Point at the HUD corner that turns **rose/pink** when fish spawn → press **F9**.
-3. Point at the corner that turns **orange** at row end → press **F10**.
-4. Adjust forward/vacuum/teleport timings in the UI, then **Save Config**.
+2. Hover the HUD corner that turns **orange** at row end → press **F9**.
+3. Adjust forward time if needed → **Save**.
+4. Press **F8** to start.
 
-Default key bindings (change in `config.json`):
+## Build from source
 
-| Key | Action |
-|-----|--------|
-| F | Attack / vacuum |
-| D | Strafe right |
-| A | Strafe left |
-| W | Move forward |
-| H | Set home |
-| G | Teleport to fish plot |
-| J | Go home |
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+pip install -e .
+.\scripts\build.ps1
+```
+
+## Run from source
+
+```powershell
+python -m garden_macro
+```
 
 ## Tests
 

@@ -1,15 +1,7 @@
 {
-  "fish_pixel": {
-    "x": 10,
-    "y": 10,
-    "red": 255,
-    "green": 105,
-    "blue": 180,
-    "tolerance": 25
-  },
   "row_end_pixel": {
     "x": 10,
-    "y": 30,
+    "y": 10,
     "red": 255,
     "green": 140,
     "blue": 0,
@@ -17,19 +9,11 @@
   },
   "poll_interval": 0.05,
   "forward_duration": 0.35,
-  "tp_delay": 0.4,
-  "tp_wait": 1.5,
-  "vacuum_duration": 3.0,
-  "home_wait": 1.5,
-  "fish_cooldown": 5.0,
   "row_end_cooldown": 0.8,
   "keys": {
     "attack": "f",
     "right": "d",
     "left": "a",
-    "forward": "w",
-    "set_home": "h",
-    "tp_plot": "g",
-    "go_home": "j"
+    "forward": "w"
   }
 }
